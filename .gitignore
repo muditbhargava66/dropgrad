@@ -1,5 +1,35 @@
-dist/*
-*__pycache__*
-src/test*
-src/*.egg-info*
+# Ignore build artifacts
+build/
+dist/
+*.egg-info/
+
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore test files and directories
+tests/__pycache__/
+tests/*.pyc
+tests/*.pyo
+tests/.pytest_cache/
+
+# Ignore IDEs and editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Ignore virtual environments
+venv/
+env/
+.env/
+
+# Ignore macOS specific files
+.DS_Store
+
+# Ignore log files
+*.log
+
+# Ignore any other files or directories specific to your project
 run_test.py

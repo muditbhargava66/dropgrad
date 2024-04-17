@@ -9,12 +9,15 @@ class DropGrad(object):
         optimizer (Optimizer): The optimizer to wrap.
         drop_rate (float, optional): The probability of dropping a gradient. Defaults to None.
         params (Dict[torch.nn.Parameter, float], optional): A dictionary mapping parameters to drop rates. Defaults to None.
+        full_update_drop (bool, optional): Whether to apply full update drop by interrupting the optimization step. Defaults to False.
     """
-    def __init__(self, 
-                 optimizer: Optimizer, 
-                 drop_rate: Optional[float] = None, 
-                 params: Optional[Dict[torch.nn.Parameter, float]] = None
-        ):
+    def __init__(
+        self, 
+        optimizer: Optimizer, 
+        drop_rate: Optional[float] = None, 
+        params: Optional[Dict[torch.nn.Parameter, float]] = None,
+        full_update_drop: bool = False
+    ):
         if drop_rate is None and params is None:
             raise ValueError("Either drop_rate or params must be specified")
         if params is not None:
@@ -28,6 +31,7 @@ class DropGrad(object):
         self.optimizer = optimizer
         self.drop_rate = drop_rate
         self.params = params
+        self.full_update_drop = full_update_drop
 
     def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:
         """Performs a single optimization step.
@@ -38,6 +42,9 @@ class DropGrad(object):
         Returns:
             Optional[float]: The loss returned by the closure, if any.
         """
+        if self.full_update_drop and torch.rand(1) < self.drop_rate:
+            return None
+
         for param_group in self.optimizer.param_groups:
             for param in param_group['params']:
                 if param.grad is not None:
@@ -65,4 +72,3 @@ class DropGrad(object):
         """
         
         return self.optimizer.zero_grad(set_to_none)
-        

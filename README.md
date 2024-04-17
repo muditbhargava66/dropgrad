@@ -1,21 +1,44 @@
 # DropGrad: A Simple Method for Regularization and Accelerated Optimization of Neural Networks
 
-- [DropGrad: A Simple Method for Regularization and Accelerated Optimization of Neural Networks](#dropgrad-a-simple-method-for-regularization-and-accelerated-optimization-of-neural-networks)
-  - [Installation](#installation)
-    - [Requirements](#requirements)
-    - [Using pip](#using-pip)
-    - [Using git](#using-git)
-  - [Usage](#usage)
-    - [Basic Usage](#basic-usage)
-    - [Use with Learning Rate Schedulers](#use-with-learning-rate-schedulers)
-    - [Varying `drop_rate` per `Parameter`](#varying-drop_rate-per-parameter)
-  - [TODO 🚧](#todo-)
-
 DropGrad is a regularization method for neural networks that works by randomly (and independently) setting gradient values to zero before an optimization step. Similarly to Dropout, it has a single parameter, `drop_rate`, the probability of setting each parameter gradient to zero. In order to de-bias the remaining gradient values, they are divided by `1.0 - drop_rate`.
 
-> To the best of my knowledge DropGrad is an original contribution. However, I have no plans of publishing a paper.
-> If indeed, it is an original method, please feel free to publish a paper about DropGrad. If you do so, all I ask is
-> that you mention me in your publication and cite this repository.
+## Features
+
+- Simple and easy-to-use gradient regularization technique
+- Compatible with various optimizers and learning rate schedulers
+- Supports per-parameter drop rates for fine-grained control
+- Implements drop rate schedulers for dynamic regularization
+- Provides an option to apply "full" update drop for further regularization
+
+## Code Structure
+
+```
+dropgrad/
+│
+├── docs/
+│   └── analysis.md
+│
+├── dropgrad/
+│   ├── __init__.py
+│   ├── dropgrad_opt.py
+│   └── dropgrad_scheduler.py
+│
+├── examples/
+│   ├── basic_usage.py
+│   ├── lr_scheduler_integration.py
+│   └── full_update_drop.py
+│
+├── tests/
+│   ├── __init__.py
+│   ├── test_dropgrad.py
+│   └── test_dropgrad_scheduler.py
+│
+├── .gitignore
+├── LICENSE
+├── pyproject.toml
+├── README.md
+└── requirements.txt
+```
 
 ## Installation
 
@@ -23,7 +46,7 @@ The PyTorch implementation of DropGrad can be installed simply using pip or by c
 
 ### Requirements
 
-The only requirement for DropGrad is PyTorch. (Only versions of PyTorch >= 2.0 have been tested, although DropGrad should be compatible with any version of PyTorch)
+The only requirement for DropGrad is PyTorch. (Only versions of PyTorch >= 1.9.0 have been tested, although DropGrad should be compatible with any version of PyTorch)
 
 ### Using pip
 
@@ -38,90 +61,81 @@ pip install dropgrad
 ```bash
 git clone https://github.com/dingo-actual/dropgrad.git
 cd dropgrad
-python -m build
-pip install dist/dropgrad-0.1.0-py3-none-any.whl
+pip install -r requirements.txt
+pip install .
 ```
 
 ## Usage
 
 ### Basic Usage
 
-To use DropGrad in your neural network optimization, simply import the `DropGrad` class to wrap your optimizer.
+To use DropGrad in your neural network optimization, simply import the `DropGrad` class and wrap your optimizer:
 
 ```python
 from dropgrad import DropGrad
-```
 
-Wrapping an optimizer is similar to using a learning rate scheduler:
-
-```python
 opt_unwrapped = Adam(net.parameters(), lr=1e-3)
 opt = DropGrad(opt_unwrapped, drop_rate=0.1)
 ```
 
-During training, the application of DropGrad is automatically handled by the wrapper. Simply call `.step()` on
-the wrapped optimizer to apply DropGrad then `.zero_grad()` to reset the gradients.
+During training, call `.step()` on the wrapped optimizer to apply DropGrad, and then call `.zero_grad()` to reset the gradients:
 
 ```python
 opt.step()
 opt.zero_grad()
 ```
 
-### Use with Learning Rate Schedulers
+### Drop Rate Schedulers
 
-If you use a learning rate scheduler as well as DropGrad, simply pass the base optimizer to both the DropGrad
-wrapper and the learning rate scheduler:
-
-```python
-opt_unwrapped = Adam(net.parameters(), lr=1e-3)
-lr_scheduler = CosineAnnealingLR(opt_unwrapped, T_max=100)
-opt = DropGrad(opt_unwrapped, drop_rate=0.1)
-```
-
-During the training loop, you call `.step()` on the DropGrad wrapper before calling `.step()` on the learning rate
-scheduler, similarly to using an optimizer without DropGrad:
+DropGrad supports drop rate schedulers to dynamically adjust the drop rate during training. The package provides several built-in schedulers, including `LinearDropRateScheduler`, `CosineAnnealingDropRateScheduler`, and `StepDropRateScheduler`. To use a drop rate scheduler, pass an instance of a scheduler to the `DropGrad` constructor:
 
 ```python
-for epoch_n in range(n_epochs):
-    for x_batch, y_batch in dataloader:
-        pred_batch = net(x_batch)
-        loss = loss_fn(pred_batch, y_batch)
+from dropgrad import DropGrad, LinearDropRateScheduler
 
-        loss.backward()
-
-        opt.step()
-        opt.zero_grad()
-
-    lr_scheduler.step()
+scheduler = LinearDropRateScheduler(initial_drop_rate=0.1, final_drop_rate=0.0, num_steps=1000)
+opt = DropGrad(opt_unwrapped, drop_rate_scheduler=scheduler)
 ```
 
-### Varying `drop_rate` per `Parameter`
+### Full Update Drop
 
-DropGrad allows the user to set a different drop rate for each `Parameter` under optimization. To do this, simply
-pass a dictionary mapping `Parameters` to drop rates to the `drop_rate` argument of the DropGrad wrapper. If a dictionary
-is passed to DropGrad during initialization, all optimized `Parameter`s that are not present in that dictionary will have
-the drop rate passed to the DropGrad wrapper at initialization (if `drop_rate=None` then drop grad simply won't be applied
-to `Parameter`s that are not present in the dictionary).
-
-The example below will apply a `drop_rate` of 0.1 to all optimized weights and a `drop_rate` of 0.01 to all optimized biases,
-with no DropGrad applied to any other optimized `Parameter`s:
+DropGrad provides an option to apply "full" update drop by interrupting the `.step()` method. To enable this feature, pass `full_update_drop=True` to the `DropGrad` constructor:
 
 ```python
-drop_rate_weights = 0.1
-drop_rate_biases = 0.01
-
-params_weights = [p for name, p in net.named_parameters() if p.requires_grad and 'weight' in name]
-params_biases = [p for name, p in net.named_parameters() if p.requires_grad and 'bias' in name]
-
-param_drop_rates = {p: drop_rate_weights for p in params_weights}
-param_drop_rates.update({p: drop_rate_biases for p in params_biases})
-
-opt_unwrapped = Adam(net.parameters(), lr=1e-3)
-opt = DropGrad(opt_unwrapped, drop_rate=None, params=param_drop_rates)
+opt = DropGrad(opt_unwrapped, drop_rate=0.1, full_update_drop=True)
 ```
 
-## TODO 🚧
+### Varying Drop Rates per Parameter
 
-- [ ] Write analysis of DropGrad
-- [ ] Implement drop rate schedulers
-- [ ] Implement option to apply "full" update drop by interrupting `.step()`
+DropGrad allows specifying different drop rates for individual parameters or parameter groups. This enables fine-grained control over the regularization applied to different parts of the model. To vary drop rates per parameter, pass a dictionary mapping parameters to drop rates:
+
+```python
+params = {
+    'encoder': 0.1,
+    'decoder': 0.2
+}
+opt = DropGrad(opt_unwrapped, params=params)
+```
+
+## Examples
+
+The `examples` directory contains sample code demonstrating various use cases of DropGrad, including basic usage, integration with learning rate schedulers, and applying full update drop.
+
+## Testing
+
+DropGrad includes a test suite to ensure the correctness of the implementation. The tests cover the functionality of the `DropGrad` optimizer and the drop rate schedulers. To run the tests, use the following command:
+
+```bash
+pytest tests/
+```
+
+## Analysis
+
+For a detailed analysis of the DropGrad method, including its theoretical foundations, advantages, and empirical results, please refer to the `docs/analysis.md` file.
+
+## Contributing
+
+Contributions to DropGrad are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request on the GitHub repository.
+
+## License
+
+DropGrad is released under the MIT License. See the `LICENSE` file for more details.

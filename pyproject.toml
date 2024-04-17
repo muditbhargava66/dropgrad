@@ -4,13 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dropgrad_dingo_actual"
-version = "0.1.0"
-dependencies = ["pytorch"]
+version = "0.2.0"
+dependencies = ["torch"]
 authors = [
     {name = "Ryan Taylor", email = "ryan@beta-reduce.net"}
+    {name = "Mudit Bhargava", email = "muditbhargava666@gmail.com"}
+]
 ]
 maintainers = [
     {name = "Ryan Taylor", email = "ryan@beta-reduce.net"}
+    {name = "Mudit Bhargava", email = "muditbhargava666@gmail.com"}
 ]
 description = "A PyTorch implementation of DropGrad regularization."
 readme = "README.md"
