@@ -9,6 +9,22 @@ DropGrad is a regularization method for neural networks that works by randomly (
 - Supports per-parameter drop rates for fine-grained control
 - Implements drop rate schedulers for dynamic regularization
 - Provides an option to apply "full" update drop for further regularization
+- Utilizes mixed-precision training for improved performance and memory efficiency (CUDA devices only)
+
+## Updates
+
+- Added support for training a Vision Transformer (ViT) on the CIFAR-10 dataset under different regularization scenarios:
+  - No Dropout, No DropGrad (Baseline)
+  - Dropout only (using the best dropout rate based on grid search)
+  - DropGrad only (using the best drop rate based on grid search)
+  - Dropout + DropGrad (using the best combination of drop rates based on grid search)
+- Implemented support for various optimizers (Adam, AdamW, SGD, AdaGrad, AdaDelta) in the ViT training example
+- Provided code for visualizing train/test loss curves for different regularization scenarios and optimizers
+- Updated the code to automatically detect and utilize the available hardware (MPS, CUDA, or CPU) for training
+- Incorporated mixed-precision training using `torch.cuda.amp` for improved performance and memory efficiency on CUDA devices
+- Adjusted the ViT model architecture and hyperparameters for faster experimentation
+- Implemented graceful handling of KeyboardInterrupt exception during training
+- Updated the code directory structure to include the ViT experiment files
 
 ## Code Structure
 
@@ -26,7 +42,11 @@ dropgrad/
 ├── examples/
 │   ├── basic_usage.py
 │   ├── lr_scheduler_integration.py
-│   └── full_update_drop.py
+│   ├── full_update_drop.py
+│   └── vit_experiments/
+│       ├── vit_model.py
+│       ├── train.py
+│       └── visualize.py
 │
 ├── tests/
 │   ├── __init__.py
@@ -46,7 +66,7 @@ The PyTorch implementation of DropGrad can be installed simply using pip or by c
 
 ### Requirements
 
-The only requirement for DropGrad is PyTorch. (Only versions of PyTorch >= 1.9.0 have been tested, although DropGrad should be compatible with any version of PyTorch)
+The requirements for DropGrad are PyTorch, torchvision, and matplotlib. (Only versions of PyTorch >= 1.9.0 have been tested, although DropGrad should be compatible with any version of PyTorch)
 
 ### Using pip
 
@@ -118,7 +138,7 @@ opt = DropGrad(opt_unwrapped, params=params)
 
 ## Examples
 
-The `examples` directory contains sample code demonstrating various use cases of DropGrad, including basic usage, integration with learning rate schedulers, and applying full update drop.
+The `examples` directory contains sample code demonstrating various use cases of DropGrad, including basic usage, integration with learning rate schedulers, applying full update drop, and training a Vision Transformer (ViT) on the CIFAR-10 dataset under different regularization scenarios.
 
 ## Testing
 
