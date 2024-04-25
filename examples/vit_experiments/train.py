@@ -5,17 +5,18 @@ from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
 from dropgrad import DropGrad
 from vit_model import vit_base_patch16_224
+from lion_pytorch import Lion
 
-# Check if MPS (Metal Performance Shaders) is available
-if torch.backends.mps.is_available():
-    device = torch.device("mps")
-    print("Using MPS (Metal Performance Shaders) device")
-elif torch.cuda.is_available():
+# Check the available device
+if torch.cuda.is_available():
     device = torch.device("cuda")
     print("Using CUDA (GPU) device")
+elif torch.backends.mps.is_available():
+    device = torch.device("mps")
+    print("Using MPS (Metal Performance Shaders) device on macOS")
 else:
     device = torch.device("cpu")
-    print("Using CPU device (MPS and CUDA not available)")
+    print("Using CPU device")
 
 def train(model, optimizer, criterion, train_loader, test_loader, epochs, device):
     train_losses = []
@@ -40,8 +41,12 @@ def train(model, optimizer, criterion, train_loader, test_loader, epochs, device
                 loss = criterion(outputs, labels)
 
             scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
+
+            if isinstance(optimizer, DropGrad):
+                optimizer.step()
+            else:
+                scaler.step(optimizer)
+                scaler.update()
 
             train_loss += loss.item() * images.size(0)
             train_total += images.size(0)
@@ -111,6 +116,7 @@ def main():
         optim.SGD,
         optim.Adagrad,
         optim.Adadelta,
+        Lion,
     ]
 
     # Hyperparameter grid search

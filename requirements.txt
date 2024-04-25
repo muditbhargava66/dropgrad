@@ -1,5 +1,7 @@
-torch>=1.9.0
-torchvision
+numpy
+torch>=1.12.0
+torchvision>=0.13.0
+torchaudio>=0.12.0
 matplotlib
 scipy
 lion-pytorch

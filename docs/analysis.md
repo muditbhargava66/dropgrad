@@ -19,6 +19,14 @@
   - [Image Classification](#image-classification)
   - [Language Modeling](#language-modeling)
   - [Ablation Studies](#ablation-studies)
+- [Mathematical Analysis](#mathematical-analysis)
+  - [Effect on Stochastic Gradient Descent (SGD)](#effect-on-stochastic-gradient-descent-sgd)
+  - [Effect on Adaptive Optimizers (Adam, AdamW, Adagrad, Adadelta)](#effect-on-adaptive-optimizers-adam-adamw-adagrad-adadelta)
+  - [Effect on Lion Optimizer](#effect-on-lion-optimizer)
+- [Benchmark Visualizations](#benchmark-visualizations)
+  - [Optimization Trajectories](#optimization-trajectories)
+  - [Convergence Rates](#convergence-rates)
+  - [Sensitivity to Hyperparameters](#sensitivity-to-hyperparameters)
 - [Usage and Integration](#usage-and-integration)
   - [Installation](#installation)
   - [Basic Usage](#basic-usage)
@@ -83,6 +91,35 @@ DropGrad has also been applied to language modeling tasks using recurrent neural
 
 ### Ablation Studies
 Ablation studies have been conducted to investigate the impact of different hyperparameters and design choices in DropGrad. These studies have explored the effect of varying drop rates, using different drop rate schedulers, and applying DropGrad to specific layers or parameter groups. The results provide insights into the optimal configuration of DropGrad for different tasks and architectures.
+
+## Mathematical Analysis
+
+### Effect on Stochastic Gradient Descent (SGD)
+DropGrad has interesting effects when applied to Stochastic Gradient Descent (SGD). It causes the optimization process to do two useful things during training:
+
+1. Move through oblong, narrow regions of the parameter space by sometimes "ignoring" the directions that cause the optimization to "zig-zag" through the region.
+2. "Virtually" incorporate approximations of higher-order derivatives in the directions that were dropped during one or more consecutive previous steps.
+
+### Effect on Adaptive Optimizers (Adam, AdamW, Adagrad, Adadelta)
+When DropGrad is applied to adaptive optimizers like Adam, AdamW, Adagrad, and Adadelta, it modifies the update rules by randomly dropping gradient values. This introduces stochasticity into the optimization process and helps in regularization.
+
+The mathematical analysis in `mathematical_analysis.py` investigates the properties of the optimization trajectories and convergence behavior when DropGrad is applied to these optimizers. It provides theoretical insights and approximations to explain the observed benefits of DropGrad.
+
+### Effect on Lion Optimizer
+DropGrad has shown to work particularly well with the Lion optimizer. The mathematical analysis explores why DropGrad enhances the performance of Lion compared to other optimizers.
+
+The analysis derives theoretical justifications for the effectiveness of DropGrad in combination with Lion, considering the specific update rules and adaptive learning rate mechanisms employed by the Lion optimizer.
+
+## Benchmark Visualizations
+
+### Optimization Trajectories
+The `benchmark_visualizations.py` script visualizes the optimization trajectories of different optimizers with and without DropGrad on various optimization benchmarks. It plots the trajectories in a 2D space, allowing for a clear comparison of the behavior of DropGrad across optimizers.
+
+### Convergence Rates
+The benchmark visualizations also analyze the convergence rates of the optimizers with and without DropGrad. It demonstrates how DropGrad affects the speed and stability of convergence for different optimizers on the selected benchmarks.
+
+### Sensitivity to Hyperparameters
+The visualizations explore the sensitivity of DropGrad to different hyperparameter settings, such as the drop rate and learning rate. It provides insights into the robustness and performance trade-offs of DropGrad under various hyperparameter configurations.
 
 ## Usage and Integration
 

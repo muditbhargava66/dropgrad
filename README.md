@@ -16,9 +16,11 @@ DropGrad is a regularization method for neural networks that works by randomly (
 
 - Enhanced cross-platform compatibility: The codebase now works seamlessly on macOS, Windows, and Linux
 - Improved device selection logic: Automatically detects and utilizes the available hardware (MPS, CUDA, or CPU) for training
-- Updated dependencies: Added `torchvision` and `matplotlib` as dependencies in `requirements.txt` and `pyproject.toml`
+- Updated dependencies: Added `torchvision`, `torchaudio`, `matplotlib`, and `scipy` as dependencies in `requirements.txt` and `pyproject.toml`
 - Improved visualization: Enhanced `visualize.py` with better plot layout and cross-platform file paths
 - Code cleanup and refactoring: Improved code structure and readability
+- Added mathematical analysis: Introduced `mathematical_analysis.py` to analyze the effect of DropGrad on various optimizers
+- Added benchmark visualizations: Introduced `benchmark_visualizations.py` to compare the behavior of DropGrad across optimizers and benchmarks
 
 ## Code Structure
 
@@ -26,7 +28,8 @@ DropGrad is a regularization method for neural networks that works by randomly (
 dropgrad/
 │
 ├── docs/
-│   └── analysis.md
+│   ├── analysis.md
+│   └── windows_cuda_setup.md
 │
 ├── dropgrad/
 │   ├── __init__.py
@@ -58,24 +61,29 @@ dropgrad/
 
 ## Installation
 
-The PyTorch implementation of DropGrad can be installed simply using pip or by cloning the current GitHub repo.
-
 ### Requirements
 
-The requirements for DropGrad are PyTorch, torchvision, and matplotlib. (Only versions of PyTorch >= 1.9.0 have been tested, although DropGrad should be compatible with any version of PyTorch)
+- Python >= 3.7
+- PyTorch >= 1.12.0
+- torchvision >= 0.13.0
+- torchaudio >= 0.12.0
+- matplotlib
+- scipy
 
 ### Using pip
 
-To install using pip:
+To install DropGrad using pip, run the following command:
 
 ```bash
 pip install dropgrad
 ```
 
-### Using git
+### From source
+
+To install DropGrad from source, follow these steps:
 
 ```bash
-git clone https://github.com/muditbhargava66/dropgrad.git
+git clone https://github.com/dingo-actual/dropgrad.git
 cd dropgrad
 pip install -r requirements.txt
 pip install .
@@ -90,15 +98,15 @@ To use DropGrad in your neural network optimization, simply import the `DropGrad
 ```python
 from dropgrad import DropGrad
 
-opt_unwrapped = Adam(net.parameters(), lr=1e-3)
-opt = DropGrad(opt_unwrapped, drop_rate=0.1)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+optimizer = DropGrad(optimizer, drop_rate=0.1)
 ```
 
 During training, call `.step()` on the wrapped optimizer to apply DropGrad, and then call `.zero_grad()` to reset the gradients:
 
 ```python
-opt.step()
-opt.zero_grad()
+optimizer.step()
+optimizer.zero_grad()
 ```
 
 ### Drop Rate Schedulers
@@ -109,7 +117,7 @@ DropGrad supports drop rate schedulers to dynamically adjust the drop rate durin
 from dropgrad import DropGrad, LinearDropRateScheduler
 
 scheduler = LinearDropRateScheduler(initial_drop_rate=0.1, final_drop_rate=0.0, num_steps=1000)
-opt = DropGrad(opt_unwrapped, drop_rate_scheduler=scheduler)
+optimizer = DropGrad(optimizer, drop_rate_scheduler=scheduler)
 ```
 
 ### Full Update Drop
@@ -117,7 +125,7 @@ opt = DropGrad(opt_unwrapped, drop_rate_scheduler=scheduler)
 DropGrad provides an option to apply "full" update drop by interrupting the `.step()` method. To enable this feature, pass `full_update_drop=True` to the `DropGrad` constructor:
 
 ```python
-opt = DropGrad(opt_unwrapped, drop_rate=0.1, full_update_drop=True)
+optimizer = DropGrad(optimizer, drop_rate=0.1, full_update_drop=True)
 ```
 
 ### Varying Drop Rates per Parameter
@@ -129,18 +137,12 @@ params = {
     'encoder': 0.1,
     'decoder': 0.2
 }
-opt = DropGrad(opt_unwrapped, params=params)
+optimizer = DropGrad(optimizer, params=params)
 ```
 
 ## Examples
 
 The `examples` directory contains sample code demonstrating various use cases of DropGrad, including basic usage, integration with learning rate schedulers, applying full update drop, and training a Vision Transformer (ViT) on the CIFAR-10 dataset under different regularization scenarios.
-
-```bash
-python basic_usage.py
-python lr_scheduler_integration.py
-python full_update_drop.py
-```
 
 ## Testing
 
@@ -153,6 +155,10 @@ pytest tests/
 ## Analysis
 
 For a detailed analysis of the DropGrad method, including its theoretical foundations, advantages, and empirical results, please refer to the `docs/analysis.md` file.
+
+## Windows CUDA Setup
+
+For instructions on setting up CUDA on Windows for PyTorch and DropGrad, please refer to the `docs/windows_cuda_setup.md` file.
 
 ## Contributing
 

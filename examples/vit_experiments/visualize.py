@@ -1,3 +1,4 @@
+import os
 import torch
 import matplotlib.pyplot as plt
 
@@ -15,23 +16,30 @@ def main():
         "SGD",
         "Adagrad",
         "Adadelta",
-        # "Lion",  # Uncomment if you have the Lion optimizer available
     ]
 
     for optimizer_name in optimizers:
         plt.figure(figsize=(10, 5))
         for scenario in scenarios:
-            losses = torch.load(f"losses_{scenario['name']}_{optimizer_name}.pth")
-            train_losses = losses["train_losses"]
-            test_losses = losses["test_losses"]
-            plt.plot(train_losses, label=f"{scenario['name']} - Train Loss")
-            plt.plot(test_losses, label=f"{scenario['name']} - Test Loss")
+            file_path = os.path.join(".", f"losses_{scenario['name']}_{optimizer_name}.pth")
+            if os.path.exists(file_path):
+                losses = torch.load(file_path)
+                train_losses = losses["train_losses"]
+                test_losses = losses["test_losses"]
+                plt.plot(train_losses, label=f"{scenario['name']} - Train Loss")
+                plt.plot(test_losses, label=f"{scenario['name']} - Test Loss")
 
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
         plt.legend()
         plt.title(f"Train and Test Losses - {optimizer_name}")
-        plt.savefig(f"loss_plot_{optimizer_name}.png")
+        plt.tight_layout()
+        
+        output_dir = os.path.join(".", "output")
+        os.makedirs(output_dir, exist_ok=True)
+        output_path = os.path.join(output_dir, f"loss_plot_{optimizer_name}.png")
+        plt.savefig(output_path)
+        
         plt.close()
 
 if __name__ == "__main__":
