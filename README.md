@@ -10,21 +10,15 @@ DropGrad is a regularization method for neural networks that works by randomly (
 - Implements drop rate schedulers for dynamic regularization
 - Provides an option to apply "full" update drop for further regularization
 - Utilizes mixed-precision training for improved performance and memory efficiency (CUDA devices only)
+- Cross-platform compatibility: Works seamlessly on macOS, Windows, and Linux
 
-## Updates
+## Updates in Version 3.0.0
 
-- Added support for training a Vision Transformer (ViT) on the CIFAR-10 dataset under different regularization scenarios:
-  - No Dropout, No DropGrad (Baseline)
-  - Dropout only (using the best dropout rate based on grid search)
-  - DropGrad only (using the best drop rate based on grid search)
-  - Dropout + DropGrad (using the best combination of drop rates based on grid search)
-- Implemented support for various optimizers (Adam, AdamW, SGD, AdaGrad, AdaDelta) in the ViT training example
-- Provided code for visualizing train/test loss curves for different regularization scenarios and optimizers
-- Updated the code to automatically detect and utilize the available hardware (MPS, CUDA, or CPU) for training
-- Incorporated mixed-precision training using `torch.cuda.amp` for improved performance and memory efficiency on CUDA devices
-- Adjusted the ViT model architecture and hyperparameters for faster experimentation
-- Implemented graceful handling of KeyboardInterrupt exception during training
-- Updated the code directory structure to include the ViT experiment files
+- Enhanced cross-platform compatibility: The codebase now works seamlessly on macOS, Windows, and Linux
+- Improved device selection logic: Automatically detects and utilizes the available hardware (MPS, CUDA, or CPU) for training
+- Updated dependencies: Added `torchvision` and `matplotlib` as dependencies in `requirements.txt` and `pyproject.toml`
+- Improved visualization: Enhanced `visualize.py` with better plot layout and cross-platform file paths
+- Code cleanup and refactoring: Improved code structure and readability
 
 ## Code Structure
 
@@ -46,7 +40,9 @@ dropgrad/
 │   └── vit_experiments/
 │       ├── vit_model.py
 │       ├── train.py
-│       └── visualize.py
+│       ├── visualize.py
+│       ├── mathematical_analysis.py
+│       └── benchmark_visualizations.py
 │
 ├── tests/
 │   ├── __init__.py
@@ -79,7 +75,7 @@ pip install dropgrad
 ### Using git
 
 ```bash
-git clone https://github.com/dingo-actual/dropgrad.git
+git clone https://github.com/muditbhargava66/dropgrad.git
 cd dropgrad
 pip install -r requirements.txt
 pip install .
@@ -139,6 +135,12 @@ opt = DropGrad(opt_unwrapped, params=params)
 ## Examples
 
 The `examples` directory contains sample code demonstrating various use cases of DropGrad, including basic usage, integration with learning rate schedulers, applying full update drop, and training a Vision Transformer (ViT) on the CIFAR-10 dataset under different regularization scenarios.
+
+```bash
+python basic_usage.py
+python lr_scheduler_integration.py
+python full_update_drop.py
+```
 
 ## Testing
 

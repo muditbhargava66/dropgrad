@@ -10,6 +10,7 @@
   - [Regularization Effects](#regularization-effects)
   - [Robustness and Generalization](#robustness-and-generalization)
   - [Computational Efficiency](#computational-efficiency)
+  - [Cross-Platform Compatibility](#cross-platform-compatibility)
 - [Implementation Details](#implementation-details)
   - [DropGrad Optimizer](#dropgrad-optimizer)
   - [Drop Rate Schedulers](#drop-rate-schedulers)
@@ -23,6 +24,12 @@
   - [Basic Usage](#basic-usage)
   - [Integration with Learning Rate Schedulers](#integration-with-learning-rate-schedulers)
   - [Varying Drop Rates per Parameter](#varying-drop-rates-per-parameter)
+- [Version 3 Updates](#version-3-updates)
+  - [Enhanced Cross-Platform Compatibility](#enhanced-cross-platform-compatibility)
+  - [Improved Device Selection Logic](#improved-device-selection-logic)
+  - [Updated Dependencies](#updated-dependencies)
+  - [Improved Visualization](#improved-visualization)
+  - [Code Cleanup and Refactoring](#code-cleanup-and-refactoring)
 - [Future Directions](#future-directions)
 - [Conclusion](#conclusion)
 - [References](#references)
@@ -51,6 +58,9 @@ DropGrad promotes the learning of robust and generalized representations. By ran
 
 ### Computational Efficiency
 DropGrad is computationally efficient compared to some other regularization techniques. It introduces minimal overhead during training, as it only requires element-wise operations on the gradients. The computational cost of DropGrad is negligible, making it suitable for large-scale deep learning tasks.
+
+### Cross-Platform Compatibility
+Version 3 of DropGrad introduces enhanced cross-platform compatibility, allowing the codebase to work seamlessly on macOS, Windows, and Linux. This expansion enables researchers and practitioners to utilize DropGrad on their preferred operating system without any compatibility issues. The improved cross-platform support facilitates wider adoption and easier integration of DropGrad into existing deep learning workflows.
 
 ## Implementation Details
 
@@ -109,6 +119,23 @@ params = {
 }
 optimizer = DropGrad(optimizer, params=params)
 ```
+
+## Version 3 Updates
+
+### Enhanced Cross-Platform Compatibility
+In version 3, significant efforts have been made to enhance the cross-platform compatibility of DropGrad. The codebase has been thoroughly tested and adapted to ensure seamless functionality on macOS, Windows, and Linux systems. This improvement allows users to run DropGrad on their preferred operating system without encountering compatibility issues, making it more accessible to a wider audience.
+
+### Improved Device Selection Logic
+Version 3 introduces an improved device selection logic that automatically detects and utilizes the available hardware for training. The codebase now intelligently selects the most suitable device, prioritizing MPS (Metal Performance Shaders) on macOS, CUDA (GPU) on systems with NVIDIA GPUs, and falling back to CPU when no accelerators are available. This enhancement simplifies the setup process and ensures optimal performance based on the available hardware.
+
+### Updated Dependencies
+The dependencies of DropGrad have been updated in version 3 to include `torchvision` and `matplotlib`. These additions expand the functionality and visualization capabilities of the package. The `requirements.txt` and `pyproject.toml` files have been updated to reflect these changes, ensuring that users can easily install all the necessary dependencies for running DropGrad and reproducing the experiments.
+
+### Improved Visualization
+Version 3 brings improvements to the visualization aspect of DropGrad. The `visualize.py` script has been enhanced with better plot layouts and cross-platform file path handling. These changes ensure that the generated plots are visually appealing and consistent across different operating systems. The improved visualization facilitates easier interpretation and presentation of the experimental results.
+
+### Code Cleanup and Refactoring
+The codebase of DropGrad has undergone significant cleanup and refactoring in version 3. The code structure has been optimized for better readability and maintainability. Unnecessary code duplications have been removed, and consistent naming conventions have been adopted throughout the codebase. These improvements contribute to a more efficient development process and easier collaboration among contributors.
 
 ## Future Directions
 There are several potential directions for further research and development of DropGrad:

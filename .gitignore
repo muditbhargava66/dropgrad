@@ -30,6 +30,17 @@ env/
 
 # Ignore log files
 *.log
+*.txt
+
+# Ignore CIFAR-10 dataset and .tar.gz files in the specific directory
+examples/vit_experiments/data/
+examples/vit_experiments/data/*.tar.gz
+
+# Ignore .pth files
+*.pth
 
 # Ignore any other files or directories specific to your project
 run_test.py
+
+# Ignore the output directory for visualizations
+output/
