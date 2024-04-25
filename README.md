@@ -167,3 +167,13 @@ Contributions to DropGrad are welcome! If you find any issues or have suggestion
 ## License
 
 DropGrad is released under the MIT License. See the [MIT License](LICENSE) file for more details.
+
+## Star History
+
+<a href="https://star-history.com/#muditbhargava66/dropgrad&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=muditbhargava66/dropgrad&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=muditbhargava66/dropgrad&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=muditbhargava66/dropgrad&type=Date" />
+ </picture>
+</a>
