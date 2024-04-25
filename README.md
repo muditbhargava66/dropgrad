@@ -166,4 +166,4 @@ Contributions to DropGrad are welcome! If you find any issues or have suggestion
 
 ## License
 
-DropGrad is released under the MIT License. See the `LICENSE` file for more details.
+DropGrad is released under the MIT License. See the [MIT License](LICENSE) file for more details.
