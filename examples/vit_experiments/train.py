@@ -40,6 +40,9 @@ def train(model, optimizer, criterion, train_loader, test_loader, epochs, device
                 outputs = model(images)
                 loss = criterion(outputs, labels)
 
+            # Clip gradients to prevent explosion
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+
             scaler.scale(loss).backward()
 
             if isinstance(optimizer, DropGrad):
