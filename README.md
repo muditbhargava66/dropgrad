@@ -5,6 +5,21 @@
 
 DropGrad is a regularization method for neural networks that works by randomly (and independently) setting gradient values to zero before an optimization step. Similarly to Dropout, it has a single parameter, `drop_rate`, the probability of setting each parameter gradient to zero. In order to de-bias the remaining gradient values, they are divided by `1.0 - drop_rate`.
 
+## Table of Contents
+
+   * [Features](#features)
+   * [What's New in Version 0.3.5?](#whats-new-in-version-035)
+   * [Directory Structure](#Directory-Structure)
+   * [Installation](#installation)
+   * [Usage](#usage)
+   * [Examples](#examples)
+   * [Testing](#testing)
+   * [Analysis](#analysis)
+   * [Windows CUDA Setup](#windows-cuda-setup)
+   * [Contributing](#contributing)
+   * [License](#license)
+   * [Star History](#star-history)
+
 ## Features
 
 - Simple and easy-to-use gradient regularization technique
@@ -15,7 +30,7 @@ DropGrad is a regularization method for neural networks that works by randomly (
 - Utilizes mixed-precision training for improved performance and memory efficiency (CUDA devices only)
 - Cross-platform compatibility: Works seamlessly on macOS, Windows, and Linux
 
-## Updates in Version 0.3.5
+## What's New in Version 0.3.5?
 
 - Added support for the Lion optimizer in the ViT experiments
 - Implemented gradient clipping to prevent gradient explosion and improve training stability
@@ -24,44 +39,72 @@ DropGrad is a regularization method for neural networks that works by randomly (
 - Updated test suite to cover various aspects of DropGrad, including initialization, optimization step, drop rate scheduling, and saving of loss values
 - Code refactoring and documentation enhancements for better readability and maintainability
 
-## Code Structure
+## Directory Structure
 
-```
-dropgrad/
-│
-├── docs/
-│   ├── analysis.md
-│   └── windows_cuda_setup.md
-│
-├── dropgrad/
-│   ├── __init__.py
-│   ├── dropgrad_opt.py
-│   └── dropgrad_scheduler.py
-│
-├── examples/
-│   ├── basic_usage.py
-│   ├── lr_scheduler_integration.py
-│   ├── full_update_drop.py
-│   └── vit_experiments/
-│       ├── vit_model.py
-│       ├── train.py
-│       ├── visualize.py
-│       ├── mathematical_analysis.py
-│       ├── benchmark_visualizations.py
-│       └── *.pth
-│
-├── tests/
-│   ├── __init__.py
-│   ├── test_dropgrad.py
-│   ├── test_dropgrad_optimizer.py
-│   └── test_dropgrad_scheduler.py
-│
-├── .gitignore
-├── LICENSE
-├── pyproject.toml
-├── README.md
-└── requirements.txt
-```
+<table>
+<thead>
+<tr>
+<th> Description </th>
+<th> Quick Access </th>
+</tr>
+</thead>
+<tbody>
+
+<tr> <td> <h3> Getting Started </h3>
+The <code>examples</code> directory contains sample code demonstrating various use cases of DropGrad, including basic usage, integration with learning rate schedulers, applying full update drop, and training a Vision Transformer (ViT) on the CIFAR-10 dataset under different regularization scenarios.
+</td> <td> <pre>
+└── examples
+    ├── <a href="examples/basic_usage.py">basic_usage.py</a>
+    ├── <a href="examples/lr_scheduler_integration.py">lr_scheduler_integration.py</a>
+    ├── <a href="examples/full_update_drop.py">full_update_drop.py</a>
+    └── <a href="examples/vit_experiments">vit_experiments</a>
+        ├── <a href="examples/vit_experiments/vit_model.py">vit_model.py</a>
+        ├── <a href="examples/vit_experiments/train.py">train.py</a>
+        ├── <a href="examples/vit_experiments/visualize.py">visualize.py</a>
+        ├── <a href="examples/vit_experiments/mathematical_analysis.py">mathematical_analysis.py</a>
+        ├── <a href="examples/vit_experiments/benchmark_visualizations.py">benchmark_visualizations.py</a>
+        └── <a href="examples/vit_experiments">*.pth</a>
+</pre> </td> </tr>
+
+<tr> <td> <h3> Documentation </h3>
+The <code>docs</code> directory contains detailed documentation and analysis of the DropGrad method, as well as instructions for setting up CUDA on Windows for PyTorch and DropGrad.
+</td> <td> <pre>
+└── docs
+    ├── <a href="docs/analysis.md">analysis.md</a>
+    └── <a href="docs/windows_cuda_setup.md">windows_cuda_setup.md</a>
+</pre> </td> </tr>
+
+<tr> <td> <h3> Core DropGrad Implementation </h3>
+The <code>dropgrad</code> directory contains the core implementation of the DropGrad optimizer and drop rate schedulers.
+</td> <td> <pre>
+└── dropgrad
+    ├── <a href="dropgrad/__init__.py">__init__.py</a>
+    ├── <a href="dropgrad/dropgrad_opt.py">dropgrad_opt.py</a>
+    └── <a href="dropgrad/dropgrad_scheduler.py">dropgrad_scheduler.py</a>
+</pre> </td> </tr>
+
+<tr> <td> <h3> Testing </h3>
+The <code>tests</code> directory contains the test suite for DropGrad, ensuring the correctness of the implementation. The tests cover the functionality of the <code>DropGrad</code> optimizer and the drop rate schedulers.
+</td> <td> <pre>
+└── tests
+    ├── <a href="tests/__init__.py">__init__.py</a>
+    ├── <a href="tests/test_dropgrad.py">test_dropgrad.py</a>
+    ├── <a href="tests/test_dropgrad_optimizer.py">test_dropgrad_optimizer.py</a>
+    └── <a href="tests/test_dropgrad_scheduler.py">test_dropgrad_scheduler.py</a>
+</pre> </td> </tr>
+
+<tr> <td> <h3> Configuration and Setup </h3>
+This section highlights the key files related to project configuration, requirements, and licensing.
+</td> <td> <pre>
+├── <a href=".gitignore">.gitignore</a>
+├── <a href="LICENSE">LICENSE</a>
+├── <a href="pyproject.toml">pyproject.toml</a>
+├── <a href="README.md">README.md</a>
+└── <a href="requirements.txt">requirements.txt</a>
+</pre> </td> </tr>
+
+</tbody>
+</table>
 
 ## Installation
 
