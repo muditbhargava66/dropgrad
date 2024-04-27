@@ -1,11 +1,14 @@
+import argparse
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from lion_pytorch import Lion
 from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
-from dropgrad import DropGrad
 from vit_model import vit_base_patch16_224
-from lion_pytorch import Lion
+
+from dropgrad import DropGrad
 
 # Check the available device
 if torch.cuda.is_available():
@@ -17,6 +20,7 @@ elif torch.backends.mps.is_available():
 else:
     device = torch.device("cpu")
     print("Using CPU device")
+
 
 def train(model, optimizer, criterion, train_loader, test_loader, epochs, device):
     train_losses = []
@@ -55,7 +59,9 @@ def train(model, optimizer, criterion, train_loader, test_loader, epochs, device
             train_total += images.size(0)
 
             if (batch_idx + 1) % 100 == 0:
-                print(f"Batch [{batch_idx+1}/{len(train_loader)}] - Train Loss: {loss.item():.4f}")
+                print(
+                    f"Batch [{batch_idx+1}/{len(train_loader)}] - Train Loss: {loss.item():.4f}"
+                )
 
         train_loss = train_loss / train_total
         train_losses.append(train_loss)
@@ -75,34 +81,60 @@ def train(model, optimizer, criterion, train_loader, test_loader, epochs, device
                 test_total += images.size(0)
 
                 if (batch_idx + 1) % 100 == 0:
-                    print(f"Batch [{batch_idx+1}/{len(test_loader)}] - Test Loss: {loss.item():.4f}")
+                    print(
+                        f"Batch [{batch_idx+1}/{len(test_loader)}] - Test Loss: {loss.item():.4f}"
+                    )
 
         test_loss = test_loss / test_total
         test_losses.append(test_loss)
 
-        print(f"Epoch [{epoch+1}/{epochs}], Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}")
+        print(
+            f"Epoch [{epoch+1}/{epochs}], Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}"
+        )
         print("--" * 20)
 
     return train_losses, test_losses
 
+
 def main():
+    # Define the parser
+    parser = argparse.ArgumentParser(description="Train a ViT model on CIFAR-10")
+    parser.add_argument(
+        "--epochs", type=int, default=10, help="Number of epochs to train"
+    )
+    parser.add_argument(
+        "--batch-size", type=int, default=32, help="Batch size for training"
+    )
+    args = parser.parse_args()
+
     # Define data transforms
-    transform = transforms.Compose([
-        transforms.RandomResizedCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-    ])
+    transform = transforms.Compose(
+        [
+            transforms.RandomResizedCrop(224),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        ]
+    )
 
     # Load CIFAR-10 dataset
-    train_dataset = datasets.CIFAR10(root="./data", train=True, download=True, transform=transform)
-    test_dataset = datasets.CIFAR10(root="./data", train=False, download=True, transform=transform)
+    train_dataset = datasets.CIFAR10(
+        root="./data", train=True, download=True, transform=transform
+    )
+    test_dataset = datasets.CIFAR10(
+        root="./data", train=False, download=True, transform=transform
+    )
 
     # Use a smaller subset for faster experimentation
     train_subset = Subset(train_dataset, range(10000))
     test_subset = Subset(test_dataset, range(1000))
 
-    train_loader = DataLoader(train_subset, batch_size=32, shuffle=True, num_workers=4)
-    test_loader = DataLoader(test_subset, batch_size=32, shuffle=False, num_workers=4)
+    train_loader = DataLoader(
+        train_subset, batch_size=args.batch_size, shuffle=True, num_workers=4
+    )
+    test_loader = DataLoader(
+        test_subset, batch_size=args.batch_size, shuffle=False, num_workers=4
+    )
 
     # Define the scenarios
     scenarios = [
@@ -126,9 +158,6 @@ def main():
     dropout_rates = [0.0, 0.1]
     dropgrad_rates = [0.0, 0.1]
 
-    # Define the number of epochs
-    epochs = 10
-
     try:
         # Perform grid search for each scenario and optimizer
         for scenario in scenarios:
@@ -140,9 +169,18 @@ def main():
 
             for dropout_rate in dropout_rates:
                 for dropgrad_rate in dropgrad_rates:
-                    print(f"Dropout Rate: {dropout_rate}, DropGrad Rate: {dropgrad_rate}")
+                    print(
+                        f"Dropout Rate: {dropout_rate}, DropGrad Rate: {dropgrad_rate}"
+                    )
 
-                    model = vit_base_patch16_224(n_classes=10, dropout_rate=dropout_rate, patch_size=32, embed_dim=256, depth=8, num_heads=8)
+                    model = vit_base_patch16_224(
+                        n_classes=10,
+                        dropout_rate=dropout_rate,
+                        patch_size=32,
+                        embed_dim=256,
+                        depth=8,
+                        num_heads=8,
+                    )
                     model.to(device)
                     criterion = nn.CrossEntropyLoss()
 
@@ -152,31 +190,58 @@ def main():
                         base_optimizer = optimizer_class(model.parameters(), lr=0.001)
                         optimizer = DropGrad(base_optimizer, drop_rate=dropgrad_rate)
 
-                        train_losses, test_losses = train(model, optimizer, criterion, train_loader, test_loader, epochs, device)
+                        train_losses, test_losses = train(
+                            model,
+                            optimizer,
+                            criterion,
+                            train_loader,
+                            test_loader,
+                            args.epochs,
+                            device,
+                        )
 
                         if test_losses[-1] < best_loss:
                             best_dropout_rate = dropout_rate
                             best_dropgrad_rate = dropgrad_rate
                             best_loss = test_losses[-1]
 
-            print(f"Best Dropout Rate: {best_dropout_rate}, Best DropGrad Rate: {best_dropgrad_rate}")
+            print(
+                f"Best Dropout Rate: {best_dropout_rate}, Best DropGrad Rate: {best_dropgrad_rate}"
+            )
             print("--" * 20)
 
             # Train the model with the best hyperparameters for each scenario and optimizer
             for optimizer_class in optimizers:
                 print(f"Training with {optimizer_class.__name__} optimizer")
 
-                model = vit_base_patch16_224(n_classes=10, dropout_rate=best_dropout_rate, patch_size=32, embed_dim=256, depth=8, num_heads=8)
+                model = vit_base_patch16_224(
+                    n_classes=10,
+                    dropout_rate=best_dropout_rate,
+                    patch_size=32,
+                    embed_dim=256,
+                    depth=8,
+                    num_heads=8,
+                )
                 model.to(device)
                 criterion = nn.CrossEntropyLoss()
                 base_optimizer = optimizer_class(model.parameters(), lr=0.001)
                 optimizer = DropGrad(base_optimizer, drop_rate=best_dropgrad_rate)
 
-                train_losses, test_losses = train(model, optimizer, criterion, train_loader, test_loader, epochs, device)
+                train_losses, test_losses = train(
+                    model,
+                    optimizer,
+                    criterion,
+                    train_loader,
+                    test_loader,
+                    args.epochs,
+                    device,
+                )
 
                 # Save the loss values for visualization
-                torch.save({"train_losses": train_losses, "test_losses": test_losses},
-                           f"losses_{scenario['name']}_{optimizer_class.__name__}.pth")
+                torch.save(
+                    {"train_losses": train_losses, "test_losses": test_losses},
+                    f"losses_{scenario['name']}_{optimizer_class.__name__}.pth",
+                )
 
                 print("--" * 20)
 
@@ -188,10 +253,13 @@ def main():
         for scenario in scenarios:
             for optimizer_class in optimizers:
                 try:
-                    torch.save({"train_losses": train_losses, "test_losses": test_losses},
-                               f"losses_{scenario['name']}_{optimizer_class.__name__}.pth")
+                    torch.save(
+                        {"train_losses": train_losses, "test_losses": test_losses},
+                        f"losses_{scenario['name']}_{optimizer_class.__name__}.pth",
+                    )
                 except NameError:
                     pass
+
 
 if __name__ == "__main__":
     main()

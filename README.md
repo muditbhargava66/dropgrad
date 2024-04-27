@@ -1,5 +1,8 @@
 # DropGrad: A Simple Method for Regularization and Accelerated Optimization of Neural Networks
 
+![Version](https://img.shields.io/badge/version-0.3.5-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+
 DropGrad is a regularization method for neural networks that works by randomly (and independently) setting gradient values to zero before an optimization step. Similarly to Dropout, it has a single parameter, `drop_rate`, the probability of setting each parameter gradient to zero. In order to de-bias the remaining gradient values, they are divided by `1.0 - drop_rate`.
 
 ## Features
@@ -12,15 +15,14 @@ DropGrad is a regularization method for neural networks that works by randomly (
 - Utilizes mixed-precision training for improved performance and memory efficiency (CUDA devices only)
 - Cross-platform compatibility: Works seamlessly on macOS, Windows, and Linux
 
-## Updates in Version 3.0.0
+## Updates in Version 0.3.5
 
-- Enhanced cross-platform compatibility: The codebase now works seamlessly on macOS, Windows, and Linux
-- Improved device selection logic: Automatically detects and utilizes the available hardware (MPS, CUDA, or CPU) for training
-- Updated dependencies: Added `torchvision`, `torchaudio`, `matplotlib`, and `scipy` as dependencies in `requirements.txt` and `pyproject.toml`
-- Improved visualization: Enhanced `visualize.py` with better plot layout and cross-platform file paths
-- Code cleanup and refactoring: Improved code structure and readability
-- Added mathematical analysis: Introduced `mathematical_analysis.py` to analyze the effect of DropGrad on various optimizers
-- Added benchmark visualizations: Introduced `benchmark_visualizations.py` to compare the behavior of DropGrad across optimizers and benchmarks
+- Added support for the Lion optimizer in the ViT experiments
+- Implemented gradient clipping to prevent gradient explosion and improve training stability
+- Enhanced data augmentation techniques for better model generalization
+- Improved error handling and user interruption handling during training
+- Updated test suite to cover various aspects of DropGrad, including initialization, optimization step, drop rate scheduling, and saving of loss values
+- Code refactoring and documentation enhancements for better readability and maintainability
 
 ## Code Structure
 
@@ -45,11 +47,13 @@ dropgrad/
 │       ├── train.py
 │       ├── visualize.py
 │       ├── mathematical_analysis.py
-│       └── benchmark_visualizations.py
+│       ├── benchmark_visualizations.py
+│       └── *.pth
 │
 ├── tests/
 │   ├── __init__.py
 │   ├── test_dropgrad.py
+│   ├── test_dropgrad_optimizer.py
 │   └── test_dropgrad_scheduler.py
 │
 ├── .gitignore
@@ -166,7 +170,7 @@ Contributions to DropGrad are welcome! If you find any issues or have suggestion
 
 ## License
 
-DropGrad is released under the MIT License. See the [MIT License](LICENSE) file for more details.
+DropGrad is released under the MIT License. See the `LICENSE` file for more details.
 
 ## Star History
 

@@ -1,5 +1,9 @@
-import torch
-from dropgrad import LinearDropRateScheduler, CosineAnnealingDropRateScheduler, StepDropRateScheduler
+from dropgrad import (
+    CosineAnnealingDropRateScheduler,
+    LinearDropRateScheduler,
+    StepDropRateScheduler,
+)
+
 
 def test_linear_drop_rate_scheduler():
     initial_drop_rate = 0.5
@@ -16,11 +20,14 @@ def test_linear_drop_rate_scheduler():
 
     assert scheduler.get_drop_rate() == final_drop_rate
 
+
 def test_cosine_annealing_drop_rate_scheduler():
     initial_drop_rate = 0.5
     final_drop_rate = 0.1
     num_steps = 100
-    scheduler = CosineAnnealingDropRateScheduler(initial_drop_rate, final_drop_rate, num_steps)
+    scheduler = CosineAnnealingDropRateScheduler(
+        initial_drop_rate, final_drop_rate, num_steps
+    )
 
     assert scheduler.get_drop_rate() == initial_drop_rate
 
@@ -31,12 +38,10 @@ def test_cosine_annealing_drop_rate_scheduler():
 
     assert scheduler.get_drop_rate() == final_drop_rate
 
+
 def test_step_drop_rate_scheduler():
     initial_drop_rate = 0.5
-    drop_rate_schedule = {
-        50: 0.3,
-        80: 0.1
-    }
+    drop_rate_schedule = {50: 0.3, 80: 0.1}
     scheduler = StepDropRateScheduler(initial_drop_rate, drop_rate_schedule)
 
     assert scheduler.get_drop_rate() == initial_drop_rate

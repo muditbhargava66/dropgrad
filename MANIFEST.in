@@ -1,2 +1,12 @@
 include *.md
 include requirements.txt
+include LICENSE
+include pyproject.toml
+
+recursive-include dropgrad *.py
+recursive-include examples *.py
+recursive-include tests *.py
+
+recursive-exclude * __pycache__
+recursive-exclude * *.pyc
+recursive-exclude * *.pyo
